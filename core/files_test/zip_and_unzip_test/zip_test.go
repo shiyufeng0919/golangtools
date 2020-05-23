@@ -21,7 +21,7 @@ import (
 //示例：测试压缩目录为.zip文件
 func TestZipDir(t *testing.T) {
 	//zip名称及存储目录:rocksdb0.zip;zip目标打.zip包的目录
-	err := Zip("/tmp/shared/rocksdb0.zip", "/tmp/peer0/rocks.db/rocksdb0.db")
+	err := Zip("/tmp/rocksdb0.zip", "/tmp/peer0/rocks.db/rocksdb0.db")
 	if err != nil {
 		logs.Error("zip file fail,", err)
 		return

@@ -2,6 +2,7 @@ package zip_and_unzip
 
 import (
 	"archive/zip"
+	"fmt"
 	"github.com/astaxie/beego/logs"
 	"io"
 	"os"
@@ -17,8 +18,8 @@ import (
       https://studygolang.com/articles/7471
 */
 
-var zipFile = "/tmp/shared/rocksdb0.zip" //目标：待解压的.zip文件
-var unzipDir = "/tmp/shared/rocksdb0"    //解压缩后文件存储目录
+var zipFile = "/tmp/rocksdb0.zip"     //目标：待解压的.zip文件
+var unzipDir = "/tmp/shared/rocksdb0" //解压缩后文件存储目录
 //示例：测试解压缩目录
 func TestUnzipDir(t *testing.T) {
 	//参数:目标zip文件；指定解压缩目录
@@ -42,7 +43,8 @@ func Unzip(zipFile, dest string) error {
 			return err
 		}
 		defer rc.Close()
-		filename := filepath.Join(dest, file.Name)
+		filename := filepath.Join(dest, strings.TrimSuffix(file.Name, ".zip"))
+		fmt.Println("unzip filename:", filename)
 		err = os.MkdirAll(getDir(filename), 0755)
 		if err != nil {
 			return err
