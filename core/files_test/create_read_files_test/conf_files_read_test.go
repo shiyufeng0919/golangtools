@@ -16,8 +16,8 @@ import (
 //测试从.conf配置文件中读取key=val对
 func TestReadFromConfFile(t *testing.T) {
 	//设置读取的文件名称
-	filename := "ledger-binding.conf"
-	ledgerhash := "j5wtYVvnzoeRSPQDrMvL4nWfobe3yGQT7tBnQzuLkhS6CV"
+	filename := "./files/ledger-binding.conf"
+	ledgerhash := "j5hAns49vzM6biNXz4AwHh9WjzfhmwuPjZokM5PALFt8mh"
 	//读取.conf文件中的k,v对
 	conf := readKVConfFiles(filename)
 	for k, v := range conf {
@@ -29,6 +29,17 @@ func TestReadFromConfFile(t *testing.T) {
 			fmt.Println("privkey:", v)
 		} else if k == strings.Join([]string{"binding", ledgerhash, "parti.pwd"}, ".") {
 			fmt.Println("pwd:", v)
+		} else if k == strings.Join([]string{"binding", ledgerhash, "db", "uri"}, ".") {
+			fmt.Println("db.uri:", v)
+			//截取rocksb的序号
+			lastindex := strings.LastIndex(v, "/")
+			fmt.Println("lastindex:", lastindex) //51
+
+			db := v[lastindex+1 : len(v)-3]
+			fmt.Println("db:", db)
+
+			dbnum := strings.ReplaceAll(db, "rocksdb", "")
+			fmt.Println("dbnum:", dbnum)
 		}
 	}
 }

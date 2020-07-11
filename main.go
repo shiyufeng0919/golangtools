@@ -11,21 +11,24 @@ import (
 	"strings"
 )
 
-var srv *http.Server
+var (
+	srv               *http.Server
+	DownloadFilesPath = "/tmp/shiyufeng"
+)
 
 func main() {
-	http.HandleFunc("/isReady", isReady)             //准备工作
-	http.HandleFunc("/upload", uploadFileHandler)    //上传文件
-	http.HandleFunc("/shutdown", shutdownHttpServer) //关闭下载服务
-	http.ListenAndServe(":8001", nil)                //设置服务监听端口,下述还有一个文件下载服务端口为8000
+	http.HandleFunc("/isReady", isReady)          //准备工作
+	http.HandleFunc("/upload", uploadFileHandler) //上传文件
+	fs := http.FileServer(http.Dir(DownloadFilesPath))
+	http.Handle("/files/", http.StripPrefix("/files", fs))
+	log.Print("Server started on localhost:8081, use /upload for uploading files and /files/{fileName} for downloading")
+	http.ListenAndServe(":8001", nil) //设置服务监听端口,下述还有一个文件下载服务端口为8000
 }
 
 //准备工作
 func isReady(w http.ResponseWriter, r *http.Request) {
 	log.Println("isReady...")
 	zipDir := "/tmp/zipserver" //打成.zip包所存储的路径及下载服务所指向的目录位置
-	//zipFileName:="rocksdb0.zip"
-	//zipFileName:="/tmp/peer0/rocks.db/rocksdb0.db"
 	filespath := r.FormValue("filespath")
 	zipFileName := r.FormValue("dirname") + ".zip"
 	log.Printf("zipDir:%s,filespath:%s,zipFileName:%s", zipDir, filespath, zipFileName)
@@ -40,33 +43,7 @@ func isReady(w http.ResponseWriter, r *http.Request) {
 		log.Printf("zip files error:", err)
 		w.Write([]byte("fail"))
 	}
-	//开启下载服务监听
-	if srv == nil || srv.Addr == "" {
-		log.Println("ready start download server...")
-		go startHttpServer(zipDir)
-	}
 	log.Println("ready ok...")
-	w.Write([]byte("ok"))
-}
-
-//启动监听服务，供客户端下载文件
-func startHttpServer(monitorDir string) {
-	log.Println("startHttpServer...monitorDir:", monitorDir)
-	srv = &http.Server{Addr: ":8000"}
-	//defer srv.Close()
-	fs := http.FileServer(http.Dir(monitorDir))
-	http.Handle("/files/", http.StripPrefix("/files", fs))
-	go func() {
-		if err := srv.ListenAndServe(); err != nil {
-			log.Printf("Httpserver: ListenAndServe() error: %s", err)
-		}
-	}()
-	//time.Sleep(15*time.Minute) //15min后服务自动关闭
-}
-
-//关闭文件下载服务监听
-func shutdownHttpServer(w http.ResponseWriter, r *http.Request) {
-	srv.Close()
 	w.Write([]byte("ok"))
 }
 

@@ -1,0 +1,9 @@
+server:
+  port: 8001
+
+jvessel:
+  peerserver:
+    - "http://127.0.0.1:8001/peer0/files"
+    - "http://127.0.0.1:8001/peer1/files"
+    - "http://127.0.0.1:8001/peer2/files"
+    - "http://127.0.0.1:8001/peer3/files"
